@@ -158,13 +158,14 @@ public class EventDeduplicationLambdaIntegrationTest {
 
     private boolean isDuplicate(final E eventId) {
       long eventTime = context.timestamp();
-      WindowStoreIterator<Long> timeIterator = eventIdStore.fetch(
+      try (WindowStoreIterator<Long> timeIterator = eventIdStore.fetch(
           eventId,
           eventTime - leftDurationMs,
-          eventTime + rightDurationMs);
-      boolean isDuplicate = timeIterator.hasNext();
-      timeIterator.close();
-      return isDuplicate;
+          eventTime + rightDurationMs)) {
+        boolean isDuplicate = timeIterator.hasNext();
+        timeIterator.close();
+        return isDuplicate;
+      }
     }
 
     private void updateTimestampOfExistingEventToPreventExpiry(final E eventId, long newTimestamp) {

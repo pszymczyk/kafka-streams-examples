@@ -164,15 +164,15 @@ public class WordCountInteractiveQueriesRestService {
     }
 
     // fetch the window results for the given key and time range
-    final WindowStoreIterator<Long> results = store.fetch(key, from, to);
-
-    final List<KeyValueBean> windowResults = new ArrayList<>();
-    while (results.hasNext()) {
-      final KeyValue<Long, Long> next = results.next();
-      // convert the result to have the window time and the key (for display purposes)
-      windowResults.add(new KeyValueBean(key + "@" + next.key, next.value));
+    try (final WindowStoreIterator<Long> results = store.fetch(key, from, to)) {
+      final List<KeyValueBean> windowResults = new ArrayList<>();
+      while (results.hasNext()) {
+        final KeyValue<Long, Long> next = results.next();
+        // convert the result to have the window time and the key (for display purposes)
+        windowResults.add(new KeyValueBean(key + "@" + next.key, next.value));
+      }
+      return windowResults;
     }
-    return windowResults;
   }
 
   /**
